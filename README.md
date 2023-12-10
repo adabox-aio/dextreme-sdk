@@ -1,5 +1,4 @@
 # Dextreme SDK
-<hr>
 
 ## Supported DEXs
 - [Minswap](https://app.minswap.org/)
