@@ -25,6 +25,9 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.List;
 
+/**
+ * Muesliswap DEX
+ */
 @Slf4j
 public class Muesliswap extends Dex {
 
@@ -34,10 +37,18 @@ public class Muesliswap extends Dex {
     public static final String ORDER_ADDRESS = "addr1zyq0kyrml023kwjk8zr86d5gaxrt5w8lxnah8r6m6s4jp4g3r6dxnzml343sx8jweqn4vn3fz2kj8kgu9czghx0jrsyqqktyhv";
     public static final boolean ALLOW_PARTIAL_FILL = true;
 
+    /**
+     * {@link Muesliswap}
+     * Default Constructor
+     */
     public Muesliswap() {
         this(new ApiProvider());
     }
 
+    /**
+     * {@link Muesliswap}
+     * @param provider provider
+     */
     public Muesliswap(BaseProvider provider) {
         super(DexType.Muesliswap, provider, new MuesliSwapApi());
     }

@@ -21,15 +21,18 @@ import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
 
+/**
+ * Sundaeswap API Class
+ */
 @Slf4j
 @Getter
-public class SundaeSwapApi extends Api {
+public class SundaeswapApi extends Api {
 
     private final String marketOrderAddress = "addr1wxaptpmxcxawvr3pzlhgnpmzz3ql43n2tc8mn3av5kx0yzs09tqh8";
     private final String poolAddress = "addr1w9qzpelu9hn45pefc0xr4ac4kdxeswq7pndul2vuj59u8tqaxdznu";
     private static final String BASE_URL = "https://stats.sundaeswap.finance/graphql";
 
-    public SundaeSwapApi() {
+    public SundaeswapApi() {
         super(DexType.Minswap);
     }
 

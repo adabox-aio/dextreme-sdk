@@ -15,6 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * WingRiders DEX
+ */
 @Slf4j
 public class WingRiders extends Dex {
 
@@ -22,10 +25,18 @@ public class WingRiders extends Dex {
     public static final String ORDER_ADDRESS = "addr1wxr2a8htmzuhj39y2gq7ftkpxv98y2g67tg8zezthgq4jkg0a4ul4";
     public static final BigInteger MIN_POOL_ADA = BigInteger.valueOf(3000000L);
 
+    /**
+     * {@link WingRiders}
+     * Default Constructor
+     */
     public WingRiders() {
         this(new ApiProvider());
     }
 
+    /**
+     * {@link WingRiders}
+     * @param provider provider
+     */
     public WingRiders(BaseProvider provider) {
         super(DexType.WingRiders, provider, new WingRidersApi());
     }

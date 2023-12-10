@@ -13,13 +13,24 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Spectrum DEX
+ */
 @Slf4j
 public class Spectrum extends Dex {
 
+    /**
+     * {@link Spectrum}
+     * Default Constructor
+     */
     public Spectrum() {
         this(new ApiProvider());
     }
 
+    /**
+     * {@link Spectrum}
+     * @param provider provider
+     */
     public Spectrum(BaseProvider provider) {
         super(DexType.Spectrum, provider, new SpectrumApi());
     }

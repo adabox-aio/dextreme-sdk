@@ -1,10 +1,27 @@
 package io.adabox.dextreme.provider.base;
 
+/**
+ * Provider Type Enum
+ */
 public enum ProviderType {
 
+    /**
+     * API Provider Type
+     */
     API,
+
+    /**
+     * Yaci Provider Type
+     */
     YACI,
+
+    /**
+     * Koios Provider Type
+     */
     KOIOS,
-    BLOCKFROST,
-    KUPO
+
+    /**
+     * Blockfrost Provider Type
+     */
+    BLOCKFROST
 }

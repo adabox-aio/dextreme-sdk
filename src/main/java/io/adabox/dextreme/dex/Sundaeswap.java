@@ -7,7 +7,7 @@ import com.bloxbean.cardano.client.plutus.spec.*;
 import com.bloxbean.cardano.client.plutus.spec.serializers.PlutusDataJsonConverter;
 import com.bloxbean.cardano.client.util.HexUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.adabox.dextreme.dex.api.SundaeSwapApi;
+import io.adabox.dextreme.dex.api.SundaeswapApi;
 import io.adabox.dextreme.dex.base.Dex;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.*;
@@ -31,12 +31,20 @@ public class Sundaeswap extends Dex {
     public static final String POOL_ADDRESS = "addr1w9qzpelu9hn45pefc0xr4ac4kdxeswq7pndul2vuj59u8tqaxdznu";
     public static final String ORDER_ADDRESS = "addr1wxaptpmxcxawvr3pzlhgnpmzz3ql43n2tc8mn3av5kx0yzs09tqh8";
 
+    /**
+     * {@link Sundaeswap}
+     * Default Constructor
+     */
     public Sundaeswap() {
         this(new ApiProvider());
     }
 
+    /**
+     * {@link Sundaeswap}
+     * @param provider provider
+     */
     public Sundaeswap(BaseProvider provider) {
-        super(DexType.Sundaeswap, provider, new SundaeSwapApi());
+        super(DexType.Sundaeswap, provider, new SundaeswapApi());
     }
 
     @Override

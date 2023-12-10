@@ -17,6 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Minswap DEX
+ */
 public class Minswap extends Dex {
 
     public static final String FACTORY_TOKEN = "13aa2accf2e1561723aa26871e071fdf32c867cff7e7d50ad470d62f4d494e53574150";
@@ -25,10 +28,18 @@ public class Minswap extends Dex {
     public static final String MARKET_ORDER_ADDRESS = "addr1wxn9efv2f6w82hagxqtn62ju4m293tqvw0uhmdl64ch8uwc0h43gt";
     public static final String LIMIT_ORDER_ADDRESS = "addr1zxn9efv2f6w82hagxqtn62ju4m293tqvw0uhmdl64ch8uw6j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq6s3z70";
 
+    /**
+     * {@link Minswap}
+     * Default Constructor
+     */
     public Minswap() {
         this(new ApiProvider());
     }
 
+    /**
+     * {@link Minswap}
+     * @param provider provider
+     */
     public Minswap(BaseProvider provider) {
         super(DexType.Minswap, provider, new MinSwapApi());
     }

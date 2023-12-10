@@ -21,6 +21,9 @@ import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
 
+/**
+ * WingRiders API Class
+ */
 @Slf4j
 @Getter
 public class WingRidersApi extends Api {

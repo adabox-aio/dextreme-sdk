@@ -24,7 +24,9 @@ import java.util.NoSuchElementException;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
 
-
+/**
+ * VyFinance API Class
+ */
 @Slf4j
 @Getter
 public class VyFinanceApi extends Api {

@@ -1,5 +1,6 @@
 package io.adabox.dextreme.utils;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.BadPaddingException;
@@ -13,14 +14,19 @@ import java.security.*;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * AES Utils
+ * Used to Decrypt Responses for Minswap DEX API
+ */
 @Slf4j
+@UtilityClass
 public class AESUtils {
 
     private static SecretKeySpec secretKey;
     private static byte[] key;
 
     public static void setKey(final String myKey) {
-        MessageDigest sha = null;
+        MessageDigest sha;
         try {
             key = myKey.getBytes(StandardCharsets.UTF_8);
             sha = MessageDigest.getInstance("SHA-1");
@@ -45,6 +51,13 @@ public class AESUtils {
         return null;
     }
 
+    /**
+     * decrypt
+     *
+     * @param cipherText text to decrypt
+     * @param secret     secret used to decrypt
+     * @return decrypted string
+     */
     public static String decrypt(final String cipherText, final String secret) {
         try {
             byte[] cipherData = Base64.getDecoder().decode(cipherText);

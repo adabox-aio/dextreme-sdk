@@ -14,13 +14,24 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * VyFinance DEX
+ */
 @Slf4j
 public class VyFinance extends Dex {
 
+    /**
+     * {@link VyFinance}
+     * Default Constructor
+     */
     public VyFinance() {
         this(new ApiProvider());
     }
 
+    /**
+     * {@link VyFinance}
+     * @param provider provider
+     */
     public VyFinance(BaseProvider provider) {
         super(DexType.VyFinance, provider, new VyFinanceApi());
     }

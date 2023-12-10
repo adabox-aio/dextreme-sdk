@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-public class SundaeSwapApiTest {
+public class SundaeswapApiTest {
 
     private final Dex sundaeswap = new Sundaeswap();
 

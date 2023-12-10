@@ -21,6 +21,9 @@ import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
 
+/**
+ * Minswap API Class
+ */
 @Slf4j
 @Getter
 public class MinSwapApi extends Api {

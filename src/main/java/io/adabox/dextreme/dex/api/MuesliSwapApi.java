@@ -20,6 +20,9 @@ import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
 
+/**
+ * Muesliswap API Class
+ */
 @Slf4j
 @Getter
 public class MuesliSwapApi extends Api {
@@ -28,6 +31,10 @@ public class MuesliSwapApi extends Api {
     private static final String BASE_URL = "https://api.muesliswap.com";
     private final String[] providers = {"muesliswap", "muesliswap_v2", "muesliswap_clp"};
 
+    /**
+     * {@link MuesliSwapApi}
+     * Default Constructor
+     */
     public MuesliSwapApi() {
         super(DexType.Muesliswap);
     }
