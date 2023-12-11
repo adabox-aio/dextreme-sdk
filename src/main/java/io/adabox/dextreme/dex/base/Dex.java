@@ -36,16 +36,17 @@ public abstract class Dex {
     }
 
     public void updateLiquidityPools() {
-        if (getProvider().getProviderType() != ProviderType.API) {
+        if (getProvider().getProviderType() == ProviderType.API) {
+            setLiquidityPoolMap(getApi().liquidityPools().stream()
+                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity(), ((liquidityPool, liquidityPool2) -> liquidityPool))));
+        } else {
             List<UTxO> assetUtxos = ((ClientProvider) getProvider()).assetUtxos(getFactoryToken());
-            liquidityPoolMap = assetUtxos.stream()
+            setLiquidityPoolMap(assetUtxos.stream()
                     .map(this::toLiquidityPool)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity(), ((liquidityPool, liquidityPool2) -> liquidityPool)));
-            return;
+                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity(), ((liquidityPool, liquidityPool2) -> liquidityPool))));
         }
-        liquidityPoolMap = getApi().liquidityPools().stream()
-                .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity(), ((liquidityPool, liquidityPool2) -> liquidityPool)));
+
     }
 
     public Map<String, Token> getTokens(boolean verifiedOnly) {
