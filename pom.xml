@@ -4,7 +4,7 @@
     <groupId>io.adabox</groupId>
     <artifactId>dextreme-sdk</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Dextreme - Cardano DEXs SDK</description>
     <url>https://github.com/adabox-aio/dextreme-sdk</url>
