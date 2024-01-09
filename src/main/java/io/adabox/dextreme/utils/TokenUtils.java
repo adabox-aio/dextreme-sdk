@@ -23,8 +23,8 @@ public class TokenUtils {
         }
         token.setCanSwapTo(liquidityPools.stream()
                 .filter(liquidityPool2 -> liquidityPool2 != null &&
-                        (liquidityPool2.getAssetA().getAssetName().equals(asset.getAssetName()) ||
-                                liquidityPool2.getAssetB().getAssetName().equals(asset.getAssetName())))
+                        (liquidityPool2.getAssetA().getIdentifier("").equals(asset.getIdentifier("")) ||
+                                liquidityPool2.getAssetB().getIdentifier("").equals(asset.getIdentifier(""))))
                 .map(liquidityPool3 -> {
                     if (liquidityPool3.getAssetA().getAssetName().equals(asset.getAssetName())) {
                         return liquidityPool3.getAssetB();
@@ -34,7 +34,7 @@ public class TokenUtils {
                 }).map(asset1 -> asset1.isLovelace() ? "Cardano" :
                         (new Token(asset1,
                                 TokenRegistry.getInstance().getTokensRegistryMap().get(asset1.getIdentifier("")),
-                                TokenRegistry.getInstance().getVerifiedPolicies().contains(asset1.getPolicyId()))).getTicker())
+                                TokenRegistry.getInstance().getVerifiedPolicies().contains(asset1.getPolicyId()))).getId())
                 .collect(Collectors.toSet()));
         tokenDtos.put(token.getIdentifier(""), token);
     }
