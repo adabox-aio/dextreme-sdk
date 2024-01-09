@@ -4,7 +4,7 @@
     <groupId>io.adabox</groupId>
     <artifactId>dextreme-sdk</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Dextreme - Cardano DEXs SDK</description>
     <url>https://github.com/adabox-aio/dextreme-sdk</url>
@@ -16,15 +16,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cardano-client-lib.version>0.5.1-SNAPSHOT</cardano-client-lib.version>
         <lombok.version>1.18.30</lombok.version>
-        <jackson-databind.version>2.16.0</jackson-databind.version>
+        <jackson-databind.version>2.16.1</jackson-databind.version>
         <annotations.version>24.1.0</annotations.version>
         <junit-jupiter.version>5.10.1</junit-jupiter.version>
-        <slf4j-api.version>2.0.9</slf4j-api.version>
+        <slf4j-api.version>2.0.11</slf4j-api.version>
         <version.jacoco-maven-plugin>0.8.10</version.jacoco-maven-plugin>
         <commons-lang3.version>3.14.0</commons-lang3.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
-        <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
