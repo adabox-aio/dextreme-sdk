@@ -4,13 +4,16 @@ import com.bloxbean.cardano.client.util.HexUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import io.adabox.dextreme.component.TokenRegistry;
 import io.adabox.dextreme.dex.api.base.Api;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
+import io.adabox.dextreme.model.AssetType;
 import io.adabox.dextreme.model.LiquidityPool;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import rest.koios.client.backend.api.asset.model.AssetTokenRegistry;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -117,8 +120,15 @@ public class VyFinanceApi extends Api {
             tokenNameAssetB = HexUtil.encodeHexString(strAssetB.getBytes());
         }
 
-        Asset assetA = StringUtils.isNotBlank(currencySymbolAssetA) ? new Asset(currencySymbolAssetA, tokenNameAssetA, 0) : new Asset("", LOVELACE, 6); // TODO Get Decimals
-        Asset assetB = StringUtils.isNotBlank(currencySymbolAssetB) ? new Asset(currencySymbolAssetB, tokenNameAssetB, 0) : new Asset("", LOVELACE, 6); // TODO Get Decimals
+        String unitA = currencySymbolAssetA + tokenNameAssetA;
+        String unitB = currencySymbolAssetB + tokenNameAssetB;
+
+        Asset assetA = StringUtils.isNotBlank(currencySymbolAssetA) ?
+                new Asset(currencySymbolAssetA, tokenNameAssetA, getDecimals(unitA)) :
+                new Asset("", LOVELACE, 6);
+        Asset assetB = StringUtils.isNotBlank(currencySymbolAssetB) ?
+                new Asset(currencySymbolAssetB, tokenNameAssetB, getDecimals(unitB)) :
+                new Asset("", LOVELACE, 6);
 
         if (StringUtils.isBlank(poolData.path("tokenAQuantity").asText()) || StringUtils.isBlank(poolData.path("tokenBQuantity").asText())) {
             List<LiquidityPool> lps = liquidityPools(assetA, assetB);
@@ -148,5 +158,14 @@ public class VyFinanceApi extends Api {
         liquidityPool.setPoolFeePercent((json.path("feesSettings").path("barFee").asDouble() + json.path("feesSettings").path("liqFee").asDouble()) / 100);
         liquidityPool.setIdentifier(liquidityPool.getLpToken().getIdentifier(""));
         return liquidityPool;
+    }
+
+    private int getDecimals(String unit) {
+        if (StringUtils.isBlank(unit) || unit.equalsIgnoreCase("ada") || unit.equalsIgnoreCase("cardano") || unit.equalsIgnoreCase("lovelace")) {
+            return AssetType.ADA.getAsset().getDecimals();
+        } else {
+            AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getTokensRegistryMap().get(unit);
+            return assetTokenRegistry != null ? assetTokenRegistry.getDecimals() : 0;
+        }
     }
 }

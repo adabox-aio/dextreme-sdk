@@ -19,7 +19,7 @@ public class MuesliSwapApiTest {
     public void muesliswapGetLP() {
         Asset assetA = ADA.getAsset();
         Asset assetB = new Asset("f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880", "69555344", 6);
-        List<LiquidityPool> liquidityPoolList = muesliswap.getLiquidityPools(assetA, assetB);
+        List<LiquidityPool> liquidityPoolList = muesliswap.getLiquidityPools(assetA, null);
         System.out.println(liquidityPoolList);
     }
 

@@ -1,5 +1,6 @@
 package io.adabox.dextreme.model;
 
+import io.adabox.dextreme.dex.base.DexType;
 import lombok.*;
 
 import java.math.BigInteger;
@@ -19,5 +20,5 @@ public class SwapDatumRequest {
     private BigInteger buyAmount;
     private BigInteger sellAmount;
     private String poolId;
-    private String protocol;
+    private DexType dexType;
 }

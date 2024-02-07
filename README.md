@@ -21,13 +21,13 @@
 <dependency>
     <groupId>io.adabox</groupId>
     <artifactId>dextreme-sdk</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
 - For Gradle, add the following dependency to build.gradle
 ```
-compile group: 'io.adabox', name: 'dextreme-sdk', version: '1.0.3'
+compile group: 'io.adabox', name: 'dextreme-sdk', version: '1.0.4'
 ```
 
 ### Choose Between Different Providers

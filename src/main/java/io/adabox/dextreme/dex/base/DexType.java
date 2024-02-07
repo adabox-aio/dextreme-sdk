@@ -10,7 +10,7 @@ public enum DexType {
     Spectrum,
     WingRiders;
 
-    public DexType resolveDexType(String dexTypeString) {
+    public static DexType resolveDexType(String dexTypeString) {
         return Arrays.stream(values()).filter(dexType -> dexType.name().equalsIgnoreCase(dexTypeString)).findFirst().orElse(null);
     }
 }

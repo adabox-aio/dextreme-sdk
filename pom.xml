@@ -4,7 +4,7 @@
     <groupId>io.adabox</groupId>
     <artifactId>dextreme-sdk</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Dextreme - Cardano DEXs SDK</description>
     <url>https://github.com/adabox-aio/dextreme-sdk</url>
@@ -14,7 +14,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cardano-client-lib.version>0.5.1-SNAPSHOT</cardano-client-lib.version>
+        <cardano-client-lib.version>0.5.2-SNAPSHOT</cardano-client-lib.version>
         <lombok.version>1.18.30</lombok.version>
         <jackson-databind.version>2.16.1</jackson-databind.version>
         <annotations.version>24.1.0</annotations.version>
