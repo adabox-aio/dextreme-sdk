@@ -6,6 +6,7 @@ import io.adabox.dextreme.dex.api.base.Api;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
 import io.adabox.dextreme.utils.AESUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
@@ -32,6 +34,7 @@ public class MinSwapApi extends Api {
     private final String limitOrderAddress = "addr1zxn9efv2f6w82hagxqtn62ju4m293tqvw0uhmdl64ch8uw6j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq6s3z70";
     private static final String BASE_URL = "https://monorepo-mainnet-prod.minswap.org/graphql";
     private static final String AES_KEY = "22eaca439bfd89cf125827a7a33fe3970d735dbfd5d84f19dd95820781fc47be";
+    private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
 
     public MinSwapApi() {
         super(DexType.Minswap);
@@ -48,6 +51,67 @@ public class MinSwapApi extends Api {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public List<Ohlcv> priceChart(Asset assetA, Asset assetB, long timeFrom) {
+        long currentTime = System.currentTimeMillis();
+        String toDate = String.valueOf(currentTime);
+        String fromDate = String.valueOf(timeFrom);
+        String query ="{" +
+                "  \"query\":\"query Ohlc($input: OHLCInput!) {" +
+                "    ohlc(input: $input) {" +
+                "      close" +
+                "      high" +
+                "      low" +
+                "      open" +
+                "      time" +
+                "      volume" +
+                "    }" +
+                "  }\"," +
+                "  \"variables\":{" +
+                "    \"input\":{" +
+                "      \"assetA\":{" +
+                "        \"currencySymbol\":\"" + (assetA != null ? assetA.getPolicyId() : "") + "\"," +
+                "        \"tokenName\":\"" + (assetA != null ? assetA.getNameHex() : "") + "\"" +
+                "      }," +
+                "      \"assetB\":{" +
+                "        \"currencySymbol\":\"" + (assetB != null ? assetB.getPolicyId() : "") + "\"," +
+                "        \"tokenName\":\"" + (assetB != null ? assetB.getNameHex() : "")  + "\"" +
+                "      }," +
+                "      \"fromDate\":\"" + fromDate + "\"," +
+                "      \"toDate\":\"" + toDate + "\"," +
+                "      \"resolution\":\"60\"" +
+                "    }" +
+                "  }" +
+                "}";
+        HttpRequest request = HttpRequest
+                .newBuilder()
+                .uri(URI.create(BASE_URL))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(query))
+                .build();
+        try {
+            HttpResponse<String> httpResponse = getClient().send(request, HttpResponse.BodyHandlers.ofString());
+            return extractPriceChart(httpResponse.body()).stream().sorted(Comparator.comparing(Ohlcv::getTime)).filter(price -> price.getTime() >= timeFrom).toList();
+        } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
+    private List<Ohlcv> extractPriceChart(String responseBody) {
+        List<Ohlcv> ohlcvChart = new ArrayList<>();
+        try {
+            JsonNode responseNode = getObjectMapper().readTree(responseBody);
+            JsonNode decryptedNode = getObjectMapper().readTree(decryptResponse(responseNode.path("data").path("encryptedData")));
+            for (JsonNode priceNode : decryptedNode.path("ohlc")) {
+                ohlcvChart.add(new Ohlcv(priceNode.path("open").asDouble(), priceNode.path("high").asDouble(), priceNode.path("low").asDouble(), priceNode.path("close").asDouble(), priceNode.path("volume").asDouble(),  priceNode.path("time").asLong()));
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return ohlcvChart;
     }
 
     private List<LiquidityPool> getPaginatedLPResponse(int page, int maxPerPage, Asset assetA) throws IOException, InterruptedException {

@@ -6,6 +6,8 @@ import io.adabox.dextreme.dex.api.base.Api;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
+import io.adabox.dextreme.utils.SlotConverter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +19,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
@@ -97,6 +100,79 @@ public class WingRidersApi extends Api {
                             }
                         }
                 ).toList();
+    }
+
+    @Override
+    public List<Ohlcv> priceChart(Asset assetA, Asset assetB, long timeFrom) {
+        LiquidityPool liquidityPool = liquidityPools(assetA, assetB).getFirst();
+        Asset lpToken = liquidityPool.getLpToken();
+        long currentSlot = SlotConverter.timeToSlot(System.currentTimeMillis());
+        long sevenDaysPriorSlot = currentSlot - 7 * 86400;
+        try {
+            String query = "{" +
+
+                    "  \"query\":\"query AssetPriceAndVolume($startSlot: Int!, $endSlot: Int!, $intervalLength: Int!, $poolAsset: AssetInput!, $asset: AssetInput!) {" +
+                    "    assetPriceHistory(input: {startSlot: $startSlot, endSlot: $endSlot, intervalLength: $intervalLength, asset: $asset}) {" +
+                    "      open" +
+                    "      min" +
+                    "      max" +
+                    "      close" +
+                    "      startSlot" +
+                    "      endSlot" +
+                    "      __typename" +
+                    "    }" +
+                    "    poolVolumeHistory(input: { startSlot: $startSlot, endSlot: $endSlot, intervalLength: $intervalLength, poolAsset: $poolAsset}) {" +
+                    "      poolId" +
+                    "      startSlot" +
+                    "      endSlot" +
+                    "      volumeA" +
+                    "      outputVolumeA" +
+                    "      volumeB" +
+                    "      outputVolumeB" +
+                    "      __typename" +
+                    "    }" +
+                    "  }\"," +
+                    "  \"variables\":{" +
+                    "    \"startSlot\":" + sevenDaysPriorSlot + "," +
+                    "    \"endSlot\":" + currentSlot + "," +
+                    "    \"intervalLength\":3600," +
+                    "    \"asset\":{" +
+                    "      \"policyId\":\"" + assetB.getPolicyId() + "\"," +
+                    "      \"assetName\":\"" + assetB.getNameHex() + "\"" +
+                    "    }," +
+                    "    \"poolAsset\":{" +
+                    "      \"policyId\":\"" + lpToken.getPolicyId() + "\"," +
+                    "      \"assetName\":\"" + lpToken.getNameHex() + "\"" +
+                    "    }" +
+                    "  }" +
+                    "}";
+            HttpRequest request = HttpRequest
+                    .newBuilder()
+                    .uri(URI.create(BASE_URL))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(query))
+                    .build();
+            HttpResponse<String> httpResponse = getClient().send(request, HttpResponse.BodyHandlers.ofString());
+            return extractPriceChart(httpResponse.body()).stream().sorted(Comparator.comparing(Ohlcv::getTime)).filter(price -> price.getTime() >= timeFrom).toList();
+        } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Ohlcv> extractPriceChart(String responseBody) {
+        List<Ohlcv> ohlcvChart = new ArrayList<>();
+        try {
+            JsonNode jsonNode = getObjectMapper().readTree(responseBody);
+            JsonNode dataNode = jsonNode.path("data");
+            for (JsonNode priceNode : dataNode.path("assetPriceHistory")) {
+                ohlcvChart.add(new Ohlcv(priceNode.path("open").asDouble(), priceNode.path("max").asDouble(), priceNode.path("min").asDouble(), priceNode.path("close").asDouble(), priceNode.path("volume").asDouble(), SlotConverter.slotToTime(priceNode.path("endSlot").asLong())));
+            }
+            //TODO Fix Volume field
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return ohlcvChart;
     }
 
     private List<LiquidityPool> extractLiquidityPoolsByAsset(String responseBody) {

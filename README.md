@@ -11,6 +11,7 @@
 - Pull Liquidity Pools from DEX APIs or On-chain using [Blockfrost](https://blockfrost.io/) / [Koios](https://www.koios.rest/)
 - Explore the Best Prices for Swaps by comparing between all supported DEXs 
 - Build Swap Datums across multiple DEXs
+- Query Token Pairs Price Charts
 
 ## Use as a library in a Java Project
 
@@ -21,13 +22,13 @@
 <dependency>
     <groupId>io.adabox</groupId>
     <artifactId>dextreme-sdk</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
 - For Gradle, add the following dependency to build.gradle
 ```
-compile group: 'io.adabox', name: 'dextreme-sdk', version: '1.0.4'
+compile group: 'io.adabox', name: 'dextreme-sdk', version: '1.0.5'
 ```
 
 ### Choose Between Different Providers

@@ -51,12 +51,19 @@ public class Sundaeswap extends Dex {
     public void updateLiquidityPools() {
         if (getProvider().getProviderType() == ProviderType.API) {
             setLiquidityPoolMap(getApi().liquidityPools().stream()
-                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity())));
+                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity(), (liquidityPool, liquidityPool2) -> {
+                        log.error(liquidityPool+" "+liquidityPool2);
+                        return liquidityPool;
+                    })));
         } else {
             setLiquidityPoolMap(((ClientProvider) getProvider()).utxos(POOL_ADDRESS, null).stream()
                     .map(this::toLiquidityPool)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity())));
+                    .collect(Collectors.toMap(LiquidityPool::getIdentifier, Function.identity()
+//                            , (liquidityPool, liquidityPool2) -> {
+//                                return liquidityPool.getUTxO(). // TODO FIX
+//                            }
+                    )));
         }
     }
 

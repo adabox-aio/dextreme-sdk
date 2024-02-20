@@ -1,23 +1,24 @@
 package io.adabox.dextreme.dex.api;
 
-import io.adabox.dextreme.DexFactory;
+import io.adabox.dextreme.dex.VyFinance;
 import io.adabox.dextreme.dex.base.Dex;
-import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
 import io.adabox.dextreme.model.Token;
-import io.adabox.dextreme.provider.ApiProvider;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static io.adabox.dextreme.model.AssetType.ADA;
+import static io.adabox.dextreme.model.AssetType.SUNDAE;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class VyFinanceApiTest {
 
-    private final Dex vyFinance = DexFactory.getDex(DexType.VyFinance, new ApiProvider());
+    private final Dex vyFinance = new VyFinance();
 
     @Test
     public void vyFinanceGetLP() {
@@ -32,5 +33,15 @@ public class VyFinanceApiTest {
         List<Token> assetList = vyFinance.getTokens(true).values().stream().toList();
         assertNotNull(assetList);
         assertFalse(assetList.isEmpty());
+    }
+
+    @Test
+    public void vyFinancePriceChart() {
+        Asset assetA = ADA.getAsset();
+        Asset assetB = SUNDAE.getAsset();
+        long currentTime = System.currentTimeMillis();
+        long timeFrom = currentTime - (7 * 1000 * 60 * 60 * 24);
+        List<Ohlcv> ohlcvChart = vyFinance.getPriceChart(assetA, assetB, timeFrom);
+        Assertions.assertFalse(ohlcvChart.isEmpty());
     }
 }

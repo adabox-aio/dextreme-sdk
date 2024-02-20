@@ -78,6 +78,10 @@ public abstract class Dex {
         return getApi().liquidityPools(assetA, assetB);
     }
 
+    public List<Ohlcv> getPriceChart(Asset assetA, Asset assetB, long timeFrom) {
+        return getApi().priceChart(assetA, assetB, timeFrom);
+    }
+
     public LiquidityPool toLiquidityPool(UTxO utxo) {
         if (StringUtils.isBlank(utxo.getDatumHash())) {
             return null;

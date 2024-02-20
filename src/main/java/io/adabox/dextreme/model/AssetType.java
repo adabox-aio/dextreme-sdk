@@ -14,7 +14,9 @@ public enum AssetType {
 
     ADA("", LOVELACE, 6),
     iBTC("f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880", "69425443", 6),
-    iUSD("f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880", "69555344", 6);
+    iUSD("f66d78b4a3cb3d37afa0ec36461e51ecbde00f26c8f0a68f94b69880", "69555344", 6),
+    GERO("10a49b996e2402269af553a8a96fb8eb90d79e9eca79e2b4223057b6", "4745524f", 6),
+    SUNDAE("9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77", "53554e444145", 6);
 
     private final Asset asset;
 

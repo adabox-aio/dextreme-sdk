@@ -24,7 +24,7 @@ public class BlockfrostMapper {
     private static List<Balance> toBalance(List<Amount> amounts) {
         return amounts.stream()
                 .map(amount -> {
-                    AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getTokensRegistryMap().get(amount.getUnit());
+                    AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getRegistry(amount.getUnit());
                     int decimals = assetTokenRegistry == null ? 0 : assetTokenRegistry.getDecimals();
                     return new Balance(Asset.fromId(amount.getUnit(), decimals), amount.getQuantity());
                 })
@@ -39,7 +39,7 @@ public class BlockfrostMapper {
     private static List<Balance> toBalance2(List<TxContentOutputAmount> amounts) {
         return amounts.stream()
                 .map(amount -> {
-                    AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getTokensRegistryMap().get(amount.getUnit());
+                    AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getRegistry(amount.getUnit());
                     int decimals = assetTokenRegistry == null ? 0 : assetTokenRegistry.getDecimals();
                     return new Balance(Asset.fromId(amount.getUnit(), decimals), new BigInteger(amount.getQuantity()));
                 })

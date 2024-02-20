@@ -6,6 +6,7 @@ import io.adabox.dextreme.dex.api.base.Api;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,6 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
@@ -44,9 +46,10 @@ public class MuesliSwapApi extends Api {
         try {
             String tokenA = (assetA != null && !assetA.isLovelace()) ? assetA.getIdentifier(".") : "";
             String tokenB = (assetB != null && !assetB.isLovelace()) ? assetB.getIdentifier(".") : "";
+            String url = BASE_URL + "/liquidity/pools?providers=" + String.join(",", this.providers) + "&token-a=" + tokenA + "&token-b=" + tokenB;
             HttpRequest request = HttpRequest
                     .newBuilder()
-                    .uri(URI.create(BASE_URL + "/liquidity/pools?providers=" + String.join(",", this.providers) + "&token-a=" + tokenA + "&token-b=" + tokenB))
+                    .uri(URI.create(url))
                     .header("Content-Type", "application/json")
                     .GET()
                     .build();
@@ -58,6 +61,45 @@ public class MuesliSwapApi extends Api {
             log.error(e.getMessage(), e);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<Ohlcv> priceChart(Asset assetA, Asset assetB, long timeFrom) {
+        try {
+            String assetAPolicyId = (assetA != null && !assetA.isLovelace()) ? assetA.getPolicyId() : "";
+            String assetATokenName = (assetA != null && !assetA.isLovelace()) ? assetA.getNameHex() : "";
+            String assetBPolicyId = (assetB != null && !assetB.isLovelace()) ? assetB.getPolicyId() : "";
+            String assetBTokenName = (assetB != null && !assetB.isLovelace()) ? assetB.getNameHex() : "";
+            String url = BASE_URL + "/charts/price?base-policy-id="+assetAPolicyId+"&base-tokenname="+assetATokenName+"&quote-policy-id="+assetBPolicyId+"&quote-tokenname="+assetBTokenName+"&interval=1h";
+            HttpRequest request = HttpRequest
+                    .newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+            HttpResponse<String> httpResponse = getClient().send(request, HttpResponse.BodyHandlers.ofString());
+            if (httpResponse.statusCode() == 200) {
+                return extractPriceChart(httpResponse.body()).stream().sorted(Comparator.comparing(Ohlcv::getTime)).filter(price -> price.getTime() >= timeFrom).toList();
+            } else {
+                log.error("Response Code {} for URL: {}", httpResponse.statusCode(), url);
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Ohlcv> extractPriceChart(String responseBody) {
+        List<Ohlcv> ohlcvChart = new ArrayList<>();
+        try {
+            JsonNode jsonNode = getObjectMapper().readTree(responseBody);
+            for (JsonNode priceNode : jsonNode.path("data")) {
+                ohlcvChart.add(new Ohlcv(priceNode.path("open").asDouble(), priceNode.path("high").asDouble(), priceNode.path("low").asDouble(), priceNode.path("close").asDouble(), priceNode.path("volume").asDouble(),  priceNode.path("time").asLong()*1000));
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return ohlcvChart;
     }
 
     private List<LiquidityPool> extractLiquidityPoolsByAsset(String responseBody) {

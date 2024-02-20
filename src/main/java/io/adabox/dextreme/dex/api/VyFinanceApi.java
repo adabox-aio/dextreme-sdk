@@ -10,6 +10,7 @@ import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.AssetType;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +21,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static com.bloxbean.cardano.client.common.CardanoConstants.LOVELACE;
 
@@ -44,7 +42,7 @@ public class VyFinanceApi extends Api {
     public List<LiquidityPool> liquidityPools(Asset assetA, Asset assetB) {
         try {
             String urlSuffix;
-            if (assetA == null ) {
+            if (assetA == null) {
                 urlSuffix = "/lp?networkId=1&v2=true";
             } else {
                 String assetAId = assetA.isLovelace() ? LOVELACE : assetA.getIdentifier("");
@@ -52,9 +50,10 @@ public class VyFinanceApi extends Api {
 
                 urlSuffix = (assetB != null ? "/lp?networkId=1&v2=true&tokenAUnit=" + assetAId + "&tokenBUnit=" + assetBId : "/lp?networkId=1&v2=true");
             }
+            String url = BASE_URL + urlSuffix;
             HttpRequest request = HttpRequest
                     .newBuilder()
-                    .uri(URI.create(BASE_URL + urlSuffix))
+                    .uri(URI.create(url))
                     .header("Content-Type", "application/json")
                     .GET()
                     .build();
@@ -65,11 +64,58 @@ public class VyFinanceApi extends Api {
                                 !liquidityPool.getReserveA().equals(BigInteger.ZERO) &&
                                         !liquidityPool.getReserveB().equals(BigInteger.ZERO))
                         .toList();
+            } else if (httpResponse.statusCode() == 502) {
+                log.warn("Response Code: {} per Request: GET {}. Retrying ...", 502, url);
+                Thread.sleep(1000);
+                return extractLiquidityPoolsByAsset(httpResponse.body()).stream()
+                        .filter(liquidityPool ->
+                                !liquidityPool.getReserveA().equals(BigInteger.ZERO) &&
+                                        !liquidityPool.getReserveB().equals(BigInteger.ZERO))
+                        .toList();
+            } else {
+                log.error("Response Code: {}, URL: {}", httpResponse.statusCode(), url);
             }
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage(), e);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<Ohlcv> priceChart(Asset assetA, Asset assetB, long timeFrom) {
+        try {
+            String tokenA = (assetA != null && !assetA.isLovelace()) ? assetA.getIdentifier("") : "lovelace";
+            String tokenB = (assetB != null && !assetB.isLovelace()) ? assetB.getIdentifier("") : "lovelace";
+            String url = BASE_URL + "/lp/ohlcv?unitsPair=" + tokenA + "/" + tokenB + "&interval=1h";
+            HttpRequest request = HttpRequest
+                    .newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+            HttpResponse<String> httpResponse = getClient().send(request, HttpResponse.BodyHandlers.ofString());
+            if (httpResponse.statusCode() == 200) {
+                return extractPriceChart(httpResponse.body()).stream().sorted(Comparator.comparing(Ohlcv::getTime)).filter(price -> price.getTime() >= timeFrom).toList();
+            } else {
+                log.error("Response Code {} for URL: {}", httpResponse.statusCode(), url);
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Ohlcv> extractPriceChart(String responseBody) {
+        List<Ohlcv> ohlcvChart = new ArrayList<>();
+        try {
+            JsonNode jsonNode = getObjectMapper().readTree(responseBody);
+            for (JsonNode priceNode : jsonNode) {
+                ohlcvChart.add(new Ohlcv(priceNode.path("open").asDouble(), priceNode.path("high").asDouble(), priceNode.path("low").asDouble(), priceNode.path("close").asDouble(), priceNode.path("volume").asDouble(), priceNode.path("time").asLong() * 1000));
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return ohlcvChart;
     }
 
     private List<LiquidityPool> extractLiquidityPoolsByAsset(String responseBody) {
@@ -79,10 +125,10 @@ public class VyFinanceApi extends Api {
             if (jsonNode.isArray()) {
                 for (JsonNode jsonNodeEl : jsonNode) {
                     LiquidityPool liquidityPool = liquidityPoolFromResponse(jsonNodeEl);
-                    if (liquidityPool!= null) {
+                    if (liquidityPool != null) {
                         liquidityPools.add(liquidityPool);
                     } else {
-                      log.warn("Missed LP"); // TODO Fix
+                        log.warn("Missed LP"); // TODO Fix
                     }
                 }
             }
@@ -105,9 +151,8 @@ public class VyFinanceApi extends Api {
             String[] splittedA = strAssetA.split("0x");
             tokenNameAssetA = splittedA.length > 1 ? splittedA[1] : splittedA[0];
         } else {
-           tokenNameAssetA = HexUtil.encodeHexString(strAssetA.getBytes());
+            tokenNameAssetA = HexUtil.encodeHexString(strAssetA.getBytes());
         }
-
 
 
         String currencySymbolAssetB = json.path("bAsset").path("currencySymbol").asText();
@@ -164,7 +209,7 @@ public class VyFinanceApi extends Api {
         if (StringUtils.isBlank(unit) || unit.equalsIgnoreCase("ada") || unit.equalsIgnoreCase("cardano") || unit.equalsIgnoreCase("lovelace")) {
             return AssetType.ADA.getAsset().getDecimals();
         } else {
-            AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getTokensRegistryMap().get(unit);
+            AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getRegistry(unit);
             return assetTokenRegistry != null ? assetTokenRegistry.getDecimals() : 0;
         }
     }

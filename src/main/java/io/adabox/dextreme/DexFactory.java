@@ -1,6 +1,5 @@
 package io.adabox.dextreme;
 
-import io.adabox.dextreme.component.TokenRegistry;
 import io.adabox.dextreme.dex.*;
 import io.adabox.dextreme.dex.base.Dex;
 import io.adabox.dextreme.dex.base.DexType;
@@ -22,7 +21,6 @@ public class DexFactory {
      * @return {@link Dex}
      */
     public static Dex getDex(DexType dexType, BaseProvider baseProvider) {
-        TokenRegistry.getInstance().updateTokens();
         switch (dexType) {
             case Minswap -> {
                 return new Minswap(baseProvider);

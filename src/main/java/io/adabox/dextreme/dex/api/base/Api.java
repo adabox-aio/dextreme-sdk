@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
 import lombok.Getter;
 
 import java.net.http.HttpClient;
@@ -39,4 +40,6 @@ public abstract class Api {
      * Fetch all liquidity pools matching assetA &amp; assetB.
      */
     public abstract List<LiquidityPool> liquidityPools(Asset assetA, Asset assetB);
+
+    public abstract List<Ohlcv> priceChart(Asset assetA, Asset assetB, long timeFrom);
 }

@@ -16,8 +16,8 @@ public class TokenUtils {
     public static void insertTokenToMap(Map<String, Token> tokenDtos, Collection<LiquidityPool> liquidityPools,
                                         Asset asset, boolean verifiedOnly) {
         Token token = new Token(asset,
-                TokenRegistry.getInstance().getTokensRegistryMap().get(asset.getIdentifier("")),
-                TokenRegistry.getInstance().getVerifiedPolicies().contains(asset.getPolicyId()));
+                TokenRegistry.getInstance().getRegistry(asset.getIdentifier("")),
+                TokenRegistry.getInstance().containsVerifiedPolicy(asset.getPolicyId()));
         if (verifiedOnly && !token.isVerified()) {
             return;
         }
@@ -33,8 +33,8 @@ public class TokenUtils {
                     }
                 }).map(asset1 -> asset1.isLovelace() ? "Cardano" :
                         (new Token(asset1,
-                                TokenRegistry.getInstance().getTokensRegistryMap().get(asset1.getIdentifier("")),
-                                TokenRegistry.getInstance().getVerifiedPolicies().contains(asset1.getPolicyId()))).getId())
+                                TokenRegistry.getInstance().getRegistry(asset1.getIdentifier("")),
+                                TokenRegistry.getInstance().containsVerifiedPolicy(asset.getPolicyId()))).getId())
                 .collect(Collectors.toSet()));
         tokenDtos.put(token.getIdentifier(""), token);
     }

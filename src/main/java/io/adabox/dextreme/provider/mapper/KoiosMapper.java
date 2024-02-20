@@ -27,7 +27,7 @@ public class KoiosMapper {
         balance.addAll(assetList.stream()
                 .map(asset -> {
                     String unit = asset.getPolicyId()+asset.getAssetName();
-                    AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getTokensRegistryMap().get(unit);
+                    AssetTokenRegistry assetTokenRegistry = TokenRegistry.getInstance().getRegistry(unit);
                     int decimals = assetTokenRegistry == null ? 0 : assetTokenRegistry.getDecimals();
                     return new Balance(Asset.fromId(unit, decimals), new BigInteger(asset.getQuantity()));
                 })

@@ -2,7 +2,6 @@ package io.adabox.dextreme.component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import rest.koios.client.backend.api.asset.AssetService;
@@ -20,13 +19,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Getter
 public class TokenRegistry {
 
     private static TokenRegistry instance = null;
     private final AssetService assetService = BackendFactory.getKoiosMainnetService().getAssetService();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    public Map<String, AssetTokenRegistry> tokensRegistryMap = new HashMap<>();
+    private Map<String, AssetTokenRegistry> tokensRegistryMap = new HashMap<>();
     public Set<String> verifiedPolicies = new HashSet<>();
 
     public static synchronized TokenRegistry getInstance() {
@@ -36,7 +34,26 @@ public class TokenRegistry {
         return instance;
     }
 
+    public AssetTokenRegistry getRegistry(String unit) {
+        if (tokensRegistryMap.isEmpty()) {
+            this.updateTokenRegistryList();
+        }
+        return tokensRegistryMap.get(unit);
+    }
+
+    public boolean containsVerifiedPolicy(String policyId) {
+        if (verifiedPolicies.isEmpty()) {
+            this.updateVerifiedPolicies();
+        }
+        return verifiedPolicies.contains(policyId);
+    }
+
     public void updateTokens() {
+        updateTokenRegistryList();
+        updateVerifiedPolicies();
+    }
+
+    private void updateTokenRegistryList() {
         try {
             log.info("Fetching Token Registry List.");
             tokensRegistryMap = fetchTokenRegistryList();
@@ -45,21 +62,19 @@ public class TokenRegistry {
             log.error(e.getMessage(), e);
             loadRegistryMapFromResourceFile().ifPresent(stringAssetTokenRegistryMap -> tokensRegistryMap = stringAssetTokenRegistryMap);
         }
-        log.info("Fetching Verified Tokens List.");
-        verifiedPolicies = fetchVerifiedPolicies();
-        log.info("Updated Verified Tokens List. Size: {}", verifiedPolicies.size());
     }
 
-    private Set<String> fetchVerifiedPolicies() {
+    private void updateVerifiedPolicies() {
+        log.info("Fetching Verified Tokens List.");
         Set<String> set = new HashSet<>();
         try {
             objectMapper.readTree(URI.create("https://raw.githubusercontent.com/minswap/verified-tokens/main/tokens.json").toURL())
                     .fieldNames()
                     .forEachRemaining(set::add);
-            return set;
+            verifiedPolicies = set;
+            log.info("Updated Verified Tokens List. Size: {}", verifiedPolicies.size());
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return Collections.emptySet();
+            log.error("Failed to Update Verified Tokens List: {}", e.getMessage(), e);
         }
     }
 

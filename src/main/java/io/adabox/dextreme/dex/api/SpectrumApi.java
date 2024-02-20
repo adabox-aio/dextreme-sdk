@@ -8,6 +8,7 @@ import io.adabox.dextreme.dex.api.base.Api;
 import io.adabox.dextreme.dex.base.DexType;
 import io.adabox.dextreme.model.Asset;
 import io.adabox.dextreme.model.LiquidityPool;
+import io.adabox.dextreme.model.Ohlcv;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +63,11 @@ public class SpectrumApi extends Api {
                         !liquidityPool.getReserveA().equals(BigInteger.ZERO) &&
                                 !liquidityPool.getReserveB().equals(BigInteger.ZERO))
                 .toList();
+    }
+
+    @Override
+    public List<Ohlcv> priceChart(Asset assetA, Asset assetB, long timeFrom) {
+        return null;
     }
 
     private List<LiquidityPool> resolveLPs(String responseBody) {
